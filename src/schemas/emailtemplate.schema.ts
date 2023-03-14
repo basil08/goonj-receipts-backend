@@ -9,8 +9,8 @@ export class EmailTemplate {
   @Prop({ required: true })
   body: string;
 
-  @Prop({ required: true })
-  createdBy: User;
+  // @Prop({ required: true })
+  // createdBy: User;
 
   @Prop({ required: true })
   createdAt: Date;
