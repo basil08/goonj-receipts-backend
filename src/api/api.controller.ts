@@ -39,4 +39,22 @@ export class ApiController {
   async deleteEmailTemplate(@Query('id') id: string) {
     return this.apiService.deleteEmailTemplate(id);
   }
+
+  @Get('getTemplateNames')
+  async getTemplateNames() {
+    return this.apiService.getTemplateNames();
+  }
+
+  @Post('generateAndSendReceipts')
+  async generateAndSendReceipts(@Body() _body) {
+    // take csvData array
+    // for each elem in array, generate the corresponding email text
+    // for each elem in array, generate a PDF using jsPDF
+    // make a zip of all PDFs
+    // send exit status to user
+
+    const { csvData, templateMapping } = _body;
+    console.log(csvData);
+    return {msg: "ok"};
+  }
 }

@@ -50,5 +50,10 @@ export class ApiService {
     const deleted = await this.emailTemplateModel.findByIdAndDelete(id);
     return deleted;
   }
+
+  async getTemplateNames() {
+    const names = await this.emailTemplateModel.find({}, { name: 1, _id: 1});
+    return names;
+  }
   
 }
