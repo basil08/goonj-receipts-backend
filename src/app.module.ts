@@ -7,7 +7,7 @@ import { ApiModule } from './api/api.module';
 import CONFIG from './utils/config';
 
 @Module({
-  imports: [MongooseModule.forRoot(CONFIG.MONGODB_STRING), AuthModule, ApiModule],
+  imports: [MongooseModule.forRoot(CONFIG.MONGODB_URI), AuthModule, ApiModule],
   controllers: [AppController],
   providers: [AppService],
 })

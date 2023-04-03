@@ -1,0 +1,225 @@
+<html>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+</style>
+
+<body>
+
+    <div style="margin: 40px">
+        <table>
+            <tr>
+                <td>
+
+                    <table>
+                        <tr>
+                            <td>
+                                <div style="font-size: 24px;">
+                                    <strong>
+                                        <p style="text-decoration: underline;">RECEIPT</p>
+                                    </strong>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <strong>Receipt No:</strong>
+                                        </td>
+                                        <td>
+                                            {{{RECEIPT_NO}}}
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                            <strong>Date:</strong>
+                                        </td>
+                                        <td>
+                                            {{{DATE}}}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td>
+                    <img src="./receipts/logo.png" alt="">
+                </td>
+            </tr>
+        </table>
+        <div>&nbsp;</div>
+
+        <table style="padding-top: 5px;">
+            <tr style="padding-bottom: 5px">
+                <td style="width: 25%">
+                    <strong>
+                        Received with thanks from:
+                    </strong>
+                </td>
+                <td style="width: 50%">
+                    <span style="width: 100%; border-bottom: 2px dotted #000">{{{NAME}}} (Pan - {{{PAN}}})</span>
+                </td>
+            </tr>
+            <tr style="padding: 5px;">
+                <td style="width: 10%;"><strong>Email:</strong></td>
+                <td style="width: 50%;"> <span
+                        style="width: 100%; border-bottom: 2px dotted #000">{{{EMAIL_TO_PRINT}}}</span>
+                </td>
+                <td style="width: 10%"><strong>Phone:</strong></td>
+                <td style="width: 30%"> <span style="width: 100%; border-bottom: 2px dotted #000">{{{PHONE}}}</span>
+                </td>
+            </tr>
+
+
+            <tr style="padding: 5px">
+                <td><strong>Address:</strong>
+                </td>
+                <td> <span style="width: 100%; border-bottom: 2px dotted #000">{{{ADDRESS}}}</span>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <strong>On account of:</strong>
+                </td>
+
+                <td>
+                    <span style="border-bottom: 2px dotted #000;">{{{PURPOSE}}}</span>
+                </td>
+
+                <td>
+                    <strong>Payment mode: </strong>
+                </td>
+
+                <td>
+                    <span style="border-bottom: 2px dotted #000;">
+                        {{{MODE}}}
+                    </span>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <strong>
+                        Amount in words:
+                    </strong>
+                </td>
+
+                <td>
+                    <span style="border-bottom: 2px dotted #000;">
+                        {{{AMOUNT_IN_WORDS}}} only
+                    </span>
+                </td>
+            </tr>
+        </table>
+        <div>&nbsp;</div>
+        <table style="padding-top: 15px; width: 100%">
+            <tr>
+
+                <td>
+                    <table>
+                        <tr>
+                            <td style="width: 40%">
+                                <span>
+                                    <span
+                                        style="background-color: black; padding: 10px; color: white; font-size: large;">
+                                        &#8377
+                                    </span>
+                                    <span style="padding: 10px; border: 2px solid black">
+                                        {{{AMOUNT_IN_NUM}}}/-
+                                    </span>
+                                </span>
+                            </td>
+                        </tr>
+
+                        <tr style="margin-top: 10px;">
+                            <td style="margin-top: 10px;">\
+
+                                <div>&nbsp;</div>
+                                This Receipt is valid subject to the realisation <br />
+                                of cheque/dd/online contribution only
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+
+                <td>
+                    <div style="text-align: end;">
+                        <p><strong>For Goonj</strong></p>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <div>&nbsp;</div>
+        <div style="text-align: center; background-color: #000; color: white; font-size: large; padding: 5px">
+            Goonj (H. O.): J-93, Sarita Vihar, New Delhi, Pin: 110076
+        </div>
+
+        <table style="width: 100%; border-bottom: 2px dashed #000;">
+            <tr>
+                <td style="width: 25%">
+                    <table>
+                        <tr>
+                            <td>facebook.com/goonj.org</td>
+                        </tr>
+                        <tr>
+                            <td>twitter.com/goonj</td>
+                        </tr>
+                    </table>
+                </td>
+
+                <td style="width: 25%;">
+                    <table>
+                        <tr>
+                            <td><strong>Phone:</strong></td>
+                        </tr>
+                        <tr>
+                            <td>011-26972351, 41401216</td>
+                        </tr>
+                    </table>
+                </td>
+
+                <td style="width: 25%;">
+                    <table>
+                        <tr>
+                            <td><strong>Web:</strong></td>
+                        </tr>
+                        <tr>
+                            <td>www.goonj.org</td>
+                        </tr>
+                    </table>
+                </td>
+
+                <td style="width: 25%;">
+                    <table>
+                        <tr>
+                            <td><strong>Email:</strong></td>
+                        </tr>
+                        <tr>
+                            <td>mail@goonj.org</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <div>&nbsp;</div>
+        <div style="text-align: center; font-variant: small-caps;">
+            <strong>'COMPUTER GENERATED RECEIPT, SIGNATURE NOT REQUIRED'</strong>
+        </div>
+
+        <div style="text-align: center;">
+            GOONJ.. is registered under Societies Acts, 1860 &amp; all donations are exempted <br />
+            u/s 80G of IT act Vide no. DIT (E) 2007-08/G-655/879/11 13 Dt. 20.08.07 New Delhi. <br />
+            PAN No. <strong>AAATG5219M</strong>
+        </div>
+
+    </div>
+</body>
+
+</html>
