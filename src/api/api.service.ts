@@ -8,7 +8,9 @@ import { Model } from 'mongoose';
 import * as nodemailer from 'nodemailer';
 import CONFIG from 'src/utils/config';
 import * as AdmZip from 'adm-zip';
-import {BadRequestException} from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
+import { ToWords } from 'to-words';
+import { log } from 'console';
 
 @Injectable()
 export class ApiService {
@@ -52,7 +54,10 @@ export class ApiService {
 
   async deleteEmailTemplate(id: string) {
     const deleted = await this.emailTemplateModel.findByIdAndDelete(id);
-    return deleted;
+    if (deleted)
+      return deleted;
+    else
+      return { message: "No such email was found" }
   }
 
   async getTemplateNames() {
@@ -60,17 +65,35 @@ export class ApiService {
     return names;
   }
 
-  async getReceiptDataString(receiptTemplate, row) {
+  async getReceiptDataString(receiptTemplate, toWords, row) {
+    receiptTemplate = receiptTemplate.replace(`{{{AMOUNT_IN_WORDS}}}`, toWords.convert(Number(row['AMOUNT_IN_NUM'])));
+
     for (const key of Object.keys(row)) {
       receiptTemplate = receiptTemplate.replace(`{{{${key}}}}`, row[key]);
     }
+    
     return receiptTemplate;
   }
 
   async generateReceipts(csvData: any[]) {
     var fs = require("fs");
     var html2pdf = require("html-pdf");
-    
+    const toWords = new ToWords({
+      localeCode: 'en-IN', converterOptions: {
+        ignoreDecimal: false
+      }
+    });
+
+    // FOR TESTING
+    // const index = 0;
+    // var receiptTemplate = fs.readFileSync("./receipts/generic2.html", "utf8");
+    // // var html = await this.getReceiptDataString(receiptTemplate, row);
+    // var options = { format: "A4" };
+
+    // html2pdf.create(receiptTemplate, options).toFile(`./tmp/receipt_${index}.pdf`, function (err, res) {
+    //   return `./tmp/receipts_${index}.pdf`;
+    // });
+
     try {
       const stat = fs.statSync('./tmp/archive.zip');
       const res = fs.unlinkSync('./tmp/archive.zip');
@@ -79,35 +102,39 @@ export class ApiService {
       console.log("No zip file found");
     }
 
+    
+
     const paths = csvData.map(async (row, index) => {
       var receiptTemplate = fs.readFileSync("./receipts/generic2.html", "utf8");
-      var html = await this.getReceiptDataString(receiptTemplate, row);
+      var html = await this.getReceiptDataString(receiptTemplate, toWords, row);
       var options = { format: "A4" };
 
       html2pdf.create(html, options).toFile(`./tmp/receipt_${index}.pdf`, function (err, res) {
         return `./tmp/receipts_${index}.pdf`;
       });
+      // const res = await html2pdf.create(html, options).toFile(`./tmp/receipt_${index}.pdf`, null);
+      // return res;
     });
 
     return paths;
+    // return { msg: "ok"}
   }
-  
+
   async getEmailContent(obj) {
-    const template = await this.emailTemplateModel.findOne({name: 'Generic Template 1'});
+    const template = await this.emailTemplateModel.findById('6430fc87853aebef96055aad');
     let body = template.body as String;
     for (const key of Object.keys(obj)) {
       body = body.replace(`{{{${key}}}}`, obj[key]);
     }
-    return { subject: 'Goonj Donor Receipt Email', body: body };
+    return { subject: template.name, body: body };
   }
 
   async sendReceipts(csvData, paths) {
     const errors = [];
-    
+
     var fs = require('fs');
 
     // delete previous log file
-
 
     try {
       const stat = fs.statSync('./tmp/0_log.txt');
@@ -124,23 +151,23 @@ export class ApiService {
     } catch (e) {
       console.log("No error file found");
     }
-    
+
     const logStream = fs.createWriteStream(`./tmp/0_log.txt`, { flags: 'a' });
     const errorStream = fs.createWriteStream(`./tmp/0_error.txt`, { flags: 'a' });
 
     for (const [index, obj] of csvData.entries()) {
-        const { subject, body } = await this.getEmailContent(obj);
-        const toSend = obj['EMAIL_TO_SEND'];
+      const { subject, body } = await this.getEmailContent(obj);
+      const toSend = obj['EMAIL_TO_SEND'];
 
-        const response = await this.sendMail(toSend, subject, body, `receipt_${index}.pdf`, `./tmp/receipt_${index}.pdf`);
-        if (response == -1) {
-          errors.push(toSend);
-          errorStream.write(`${new Date().toLocaleDateString()}: Failed to send email to ${toSend}\n`);
-        }
+      const response = await this.sendMail(toSend, subject, body, `receipt_${index}.pdf`, `./tmp/receipt_${index}.pdf`);
+      if (response == -1) {
+        errors.push(toSend);
+        errorStream.write(`${new Date().toLocaleDateString()}: Failed to send email to ${toSend}\n`);
+      }
 
-        logStream.write(`Successfully sent email to ${obj['NAME']}\n`);
+      logStream.write(`Successfully sent email to ${obj['NAME']}\n`);
 
-        console.log("Successfully send to ", obj['NAME']);
+      console.log("Successfully sent to ", obj['NAME']);
     }
     errorStream.end();
     logStream.end();
@@ -159,13 +186,15 @@ export class ApiService {
     const mailOptions = {
       from: CONFIG.GMAIL_ID,
       to: toSend,
+      cc: [CONFIG.CC_EMAIL],
       subject: subject,
       text: body,
       attachments: [{
         filename: fileName,
         path: attachmentPath,
         contentType: 'application/pdf'
-      }]};
+      }]
+    };
 
     const res = await transporter.sendMail(mailOptions);
 

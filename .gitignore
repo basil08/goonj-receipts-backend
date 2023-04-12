@@ -4,6 +4,7 @@
 
 **/tmp/
 
+.env
 
 # Logs
 logs
