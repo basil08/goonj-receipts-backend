@@ -1,11 +1,9 @@
 
-FORMAT
+TO RUN INSTRUCTIONS:
 
-CSV
-RECEIPT_CODE, RECEIPT_NUMBER, RECEIPT_YEAR1, RECEIPT_YEAR2
+Note: You should make two directories in the root of the project:
 
-A-52
-A/2023-2024/52
+1. `tmp/`
+2. `zip/`
 
-ALPHABET-NUMBER
-ALPHABET/YEAR-YEAR/NUMBER
+Note: Add the defaultTemplateId to `Home.js` as initial state value for default template selection. This should be done after the template is made in the database.

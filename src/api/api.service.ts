@@ -7,10 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as nodemailer from 'nodemailer';
 import CONFIG from 'src/utils/config';
-import * as AdmZip from 'adm-zip';
-import { BadRequestException } from '@nestjs/common';
 import { ToWords } from 'to-words';
-import { log } from 'console';
 
 @Injectable()
 export class ApiService {
@@ -75,6 +72,22 @@ export class ApiService {
     return receiptTemplate;
   }
 
+  async clearCache() {
+    var fs = require("fs");
+
+    try {
+      const files = await fs.readdirSync('./tmp');
+      console.log(files);
+      files.map(async (file, index) => {
+        const res = fs.unlinkSync(`./tmp/${file}`);
+      });
+      console.log('all files of tmp folder deleted successfully');
+      return files.length;
+    } catch (e) {
+      console.log("error while cleaning tmp directory");
+      return -1;
+    }
+  }
   async generateReceipts(csvData: any[]) {
     var fs = require("fs");
     var html2pdf = require("html-pdf");
@@ -95,14 +108,23 @@ export class ApiService {
     // });
 
     try {
-      const stat = fs.statSync('./tmp/archive.zip');
-      const res = fs.unlinkSync('./tmp/archive.zip');
-      console.log('archive zip deleted successfully');
+      const stat = fs.statSync('./zip/archive.zip');
+      const res = fs.unlinkSync('./zip/archive.zip');
+      console.log('zip archive deleted successfully');
     } catch (e) {
       console.log("No zip file found");
     }
 
-    
+    // try {
+    //   const files = await fs.readdirSync('./tmp');
+    //   console.log(files);
+    //   files.map(async (file, index) => {
+    //     const res = fs.unlinkSync(`./tmp/${file}`);
+    //   });
+    //   console.log('all files of tmp folder deleted successfully');
+    // } catch (e) {
+    //   console.log("error while cleaning tmp directory");
+    // }
 
     const paths = csvData.map(async (row, index) => {
       var receiptTemplate = fs.readFileSync("./receipts/generic2.html", "utf8");
@@ -112,29 +134,41 @@ export class ApiService {
       html2pdf.create(html, options).toFile(`./tmp/receipt_${index}.pdf`, function (err, res) {
         return `./tmp/receipts_${index}.pdf`;
       });
-      // const res = await html2pdf.create(html, options).toFile(`./tmp/receipt_${index}.pdf`, null);
-      // return res;
     });
 
     return paths;
     // return { msg: "ok"}
   }
 
-  async getEmailContent(obj) {
-    const template = await this.emailTemplateModel.findById('6430fc87853aebef96055aad');
-    let body = template.body as String;
-    for (const key of Object.keys(obj)) {
-      body = body.replace(`{{{${key}}}}`, obj[key]);
+  async getEmailContent(obj, defaultTemplate) {
+    const template = await this.emailTemplateModel.findById(defaultTemplate);
+    if (template) {
+      let body = template.body as String;
+      for (const key of Object.keys(obj)) {
+        body = body.replace(`{{{${key}}}}`, obj[key]);
+      }
+      return { subject: template.name, body: body };
+    } else {
+      return { subject: '', body: ''};
     }
-    return { subject: template.name, body: body };
   }
 
-  async sendReceipts(csvData, paths) {
+  async sendReceipts(csvData, defaultTemplate) {
     const errors = [];
 
     var fs = require('fs');
 
     // delete previous log file
+
+    try {
+      const files = await fs.readdirSync('./tmp');
+      if (files.length !== csvData.length) {
+        return -1;
+      }
+    } catch (e) {
+      console.log("Unknown error occured", e);
+      
+    }
 
     try {
       const stat = fs.statSync('./tmp/0_log.txt');
@@ -156,7 +190,7 @@ export class ApiService {
     const errorStream = fs.createWriteStream(`./tmp/0_error.txt`, { flags: 'a' });
 
     for (const [index, obj] of csvData.entries()) {
-      const { subject, body } = await this.getEmailContent(obj);
+      const { subject, body } = await this.getEmailContent(obj, defaultTemplate);
       const toSend = obj['EMAIL_TO_SEND'];
 
       const response = await this.sendMail(toSend, subject, body, `receipt_${index}.pdf`, `./tmp/receipt_${index}.pdf`);
@@ -206,19 +240,31 @@ export class ApiService {
     return 0;
   }
 
-  async getZip() {
-    const zip = new AdmZip();
-    var fs = require('fs');
-    const files = await fs.readdirSync('./tmp');
-    for (const file of files) {
-      await zip.addLocalFile(`./tmp/${file}`);
-      console.log("added", file);
-    }
-    // const fileName = `${Date.now}_receipts.zip`;
-    zip.writeZip('./tmp/example.zip');
+  // async getZip() {
+  //   const zip = new AdmZip();
+  //   var fs = require('fs');
+  //   const files = await fs.readdirSync('./tmp');
+  //   console.log(files);
+  //   for (const file of files) {
+  //     await zip.addLocalFile(`./tmp/${file}`);
+  //     console.log("added", file);
+  //   }
+  //   // const fileName = `${Date.now}_receipts.zip`;
+  //   zip.writeZip('./tmp/archive.zip');
 
-    return zip.toBuffer();
-  }
+  //   try {
+  //     const files = await fs.readdirSync('./tmp');
+  //     console.log(files);
+  //     files.map(async (file, index) => {
+  //       const res = fs.unlinkSync(`./tmp/${file}`);
+  //     });
+  //     console.log('all files of tmp folder deleted successfully');
+  //   } catch (e) {
+  //     console.log("error while cleaning tmp directory");
+  //   }
+
+  //   return zip.toBuffer();
+  // }
 
   // async getLogFile() {
   //   const fs = require('fs');

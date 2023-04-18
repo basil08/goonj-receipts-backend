@@ -47,20 +47,15 @@ export class ApiController {
     return this.apiService.getTemplateNames();
   }
 
-  @Post('generateAndSendReceipts')
-  async generateAndSendReceipts(@Body() _body) {
+  @Post('generateReceipts')
+  async generateReceipts(@Body() _body) {
     // take csvData array
     // for each elem in array, generate the corresponding email text
     // for each elem in array, generate a PDF using jsPDF
     // make a zip of all PDFs
     // send exit status to user
-    const { csvData } = _body;
-
-    console.log(csvData);
-
+    const { csvData} = _body;
     const paths = await this.apiService.generateReceipts(csvData);
-
-    const status = await this.apiService.sendReceipts(csvData, paths);
 
     // global.window = { document: { createElementNS: () => { return {} } } };
     // global.window = null;
@@ -83,9 +78,30 @@ export class ApiController {
     // delete global.html2pdf;
     // delete global.navigator;
     // delete global.btoa;
-    return { msg: "ok", status: status };   
+    return { msg: "ok", paths: paths };   
   }
 
+  @Post('sendReceipts')
+  async sendReceipts(@Body() _body) {
+    const { csvData, defaultTemplate } = _body;
+    const status = await this.apiService.sendReceipts(csvData, defaultTemplate);
+
+    if (status === -1) {
+      throw new BadRequestException("PDF receipts not fully generated. Wait for sometime and then try again!");
+    }
+    return { status: status };
+  } 
+
+  @Get('clearCache')
+  async clearCache() {
+    const status = await this.apiService.clearCache();
+
+    if (status === -1) {
+      throw new BadRequestException("Error while clearing previous cache. Check logs!");
+    }
+    return { filesCleared: status };
+  } 
+  
   @Get('getZip')
   @UseInterceptors(ResponseAddContentDispositionAndContentTypeInterceptor)
   async getZip(@Res() res) {
@@ -100,9 +116,21 @@ export class ApiController {
       console.log("added", file);
     }
     // const fileName = `${Date.now}_receipts.zip`;
-    zip.writeZip('./tmp/archive.zip');
+    zip.writeZip('./zip/archive.zip');
+
+    try {
+      const files = await fs.readdirSync('./tmp');
+      console.log(files);
+      files.map(async (file, index) => {
+        const res = fs.unlinkSync(`./tmp/${file}`);
+      });
+      console.log('all files of tmp folder deleted successfully');
+    } catch (e) {
+      console.log("error while cleaning tmp directory");
+    }
+
     return res.sendFile(
-      path.join(__dirname, '../../tmp', 'archive.zip')
+      path.join(__dirname, '../../zip', 'archive.zip')
     );
 
   }
