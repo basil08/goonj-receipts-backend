@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import {
   EmailTemplate,
   EmailTemplateDocument,
-} from 'src/schemas/emailtemplate.schema';
+} from '../schemas/emailtemplate.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as nodemailer from 'nodemailer';
-import CONFIG from 'src/utils/config';
+import CONFIG from '../utils/config';
 import { ToWords } from 'to-words';
 
 @Injectable()

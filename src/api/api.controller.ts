@@ -8,8 +8,8 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { UserAuthGuard } from 'src/auth/passport/user-auth.guard';
-import { ResponseAddContentDispositionAndContentTypeInterceptor } from 'src/interceptors/add-zip-headers.interceptor';
+import { UserAuthGuard } from '../auth/passport/user-auth.guard';
+import { ResponseAddContentDispositionAndContentTypeInterceptor } from '../interceptors/add-zip-headers.interceptor';
 import * as AdmZip from 'adm-zip';
 
 @Controller('api')

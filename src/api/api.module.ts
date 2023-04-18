@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   EmailTemplate,
   EmailTemplateSchema,
-} from 'src/schemas/emailtemplate.schema';
+} from '../schemas/emailtemplate.schema';
 
 @Module({
   imports: [
