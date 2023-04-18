@@ -4,8 +4,10 @@
 
 **/tmp/
 
-.env
+
 zip/
+
+.env
 
 # Logs
 logs

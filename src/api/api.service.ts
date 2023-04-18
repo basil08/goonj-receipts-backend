@@ -217,18 +217,33 @@ export class ApiService {
       }
     });
 
-    const mailOptions = {
-      from: CONFIG.GMAIL_ID,
-      to: toSend,
-      cc: [CONFIG.CC_EMAIL],
-      subject: subject,
-      text: body,
-      attachments: [{
-        filename: fileName,
-        path: attachmentPath,
-        contentType: 'application/pdf'
-      }]
-    };
+    let mailOptions = {};
+    if (CONFIG.CC_EMAIL) {
+       mailOptions = {
+        from: CONFIG.GMAIL_ID,
+        to: toSend,
+        cc: [CONFIG.CC_EMAIL],
+        subject: subject,
+        text: body,
+        attachments: [{
+          filename: fileName,
+          path: attachmentPath,
+          contentType: 'application/pdf'
+        }]
+      };
+    } else {
+       mailOptions = {
+        from: CONFIG.GMAIL_ID,
+        to: toSend,
+        subject: subject,
+        text: body,
+        attachments: [{
+          filename: fileName,
+          path: attachmentPath,
+          contentType: 'application/pdf'
+        }]
+      };
+    }
 
     const res = await transporter.sendMail(mailOptions);
 
