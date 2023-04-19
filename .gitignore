@@ -2,11 +2,6 @@
 /dist
 /node_modules
 
-**/tmp/
-
-
-zip/
-
 .env
 
 # Logs
