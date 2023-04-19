@@ -84,7 +84,7 @@ export class ApiService {
       console.log('all files of tmp folder deleted successfully');
       return files.length;
     } catch (e) {
-      console.log("error while cleaning tmp directory");
+      console.log(e);
       return -1;
     }
   }
