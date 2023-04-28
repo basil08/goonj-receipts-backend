@@ -1,4 +1,12 @@
-import { Controller, Delete, NotFoundException, Query, Res, StreamableFile, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  NotFoundException,
+  Query,
+  Res,
+  StreamableFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiService } from './api.service';
 import {
   BadRequestException,
@@ -15,7 +23,7 @@ import * as AdmZip from 'adm-zip';
 @Controller('api')
 @UseGuards(UserAuthGuard)
 export class ApiController {
-  constructor(private readonly apiService: ApiService) { }
+  constructor(private readonly apiService: ApiService) {}
 
   @Post('createEmailTemplate')
   async createEmailTemplate(@Body() _body) {
@@ -33,7 +41,10 @@ export class ApiController {
   }
 
   @Get('getEmailTemplates')
-  async getEmailTemapltes(@Query('skip') skip: number, @Query('limit') limit: number) {
+  async getEmailTemapltes(
+    @Query('skip') skip: number,
+    @Query('limit') limit: number,
+  ) {
     return this.apiService.getEmailTemplates(skip, limit);
   }
 
@@ -54,7 +65,7 @@ export class ApiController {
     // for each elem in array, generate a PDF using jsPDF
     // make a zip of all PDFs
     // send exit status to user
-    const { csvData} = _body;
+    const { csvData } = _body;
     const paths = await this.apiService.generateReceipts(csvData);
 
     // global.window = { document: { createElementNS: () => { return {} } } };
@@ -62,13 +73,13 @@ export class ApiController {
     // global.navigator = null;
     // global.html2pdf = {};
     // global.btoa = null;
-    
+
     // import fs from "fs";
-   
+
     // fs.writeFileSync('./tmp/document.pdf', data, 'binary');
 
     // const { csvData, templateMapping } = _body;
-    
+
     // for (const data of csvData) {
     //   const templateId = templateMapping[csvData['Purpose']];
     //   // emailText = getEmailText(data, templateId);
@@ -78,7 +89,7 @@ export class ApiController {
     // delete global.html2pdf;
     // delete global.navigator;
     // delete global.btoa;
-    return { msg: "ok", paths: paths };   
+    return { msg: 'ok', paths: paths };
   }
 
   @Post('sendReceipts')
@@ -87,21 +98,25 @@ export class ApiController {
     const status = await this.apiService.sendReceipts(csvData, defaultTemplate);
 
     if (status === -1) {
-      throw new BadRequestException("PDF receipts not fully generated. Wait for sometime and then try again!");
+      throw new BadRequestException(
+        'PDF receipts not fully generated. Wait for sometime and then try again!',
+      );
     }
     return { status: status };
-  } 
+  }
 
   @Get('clearCache')
   async clearCache() {
     const status = await this.apiService.clearCache();
 
     if (status === -1) {
-      throw new BadRequestException("Error while clearing previous cache. Check logs!");
+      throw new BadRequestException(
+        'Error while clearing previous cache. Check logs!',
+      );
     }
     return { filesCleared: status };
-  } 
-  
+  }
+
   @Get('getZip')
   @UseInterceptors(ResponseAddContentDispositionAndContentTypeInterceptor)
   async getZip(@Res() res) {
@@ -113,7 +128,7 @@ export class ApiController {
     const files = await fs.readdirSync('./tmp');
     for (const file of files) {
       await zip.addLocalFile(`./tmp/${file}`);
-      console.log("added", file);
+      console.log('added', file);
     }
     // const fileName = `${Date.now}_receipts.zip`;
     zip.writeZip('./zip/archive.zip');
@@ -126,13 +141,10 @@ export class ApiController {
       });
       console.log('all files of tmp folder deleted successfully');
     } catch (e) {
-      console.log("error while cleaning tmp directory");
+      console.log('error while cleaning tmp directory');
     }
 
-    return res.sendFile(
-      path.join(__dirname, '../../zip', 'archive.zip')
-    );
-
+    return res.sendFile(path.join(__dirname, '../../zip', 'archive.zip'));
   }
 
   @Get('getLog')
@@ -155,9 +167,7 @@ export class ApiController {
 
     // const log = fs.readFileSync('./tmp/0_log.txt');
 
-    return res.sendFile(
-      path.join(__dirname, '../../tmp', '0_log.txt')
-    );
+    return res.sendFile(path.join(__dirname, '../../tmp', '0_log.txt'));
     // return this.apiService.getLogFile();
   }
 
@@ -165,9 +175,6 @@ export class ApiController {
   getError(@Res() res) {
     const path = require('path');
 
-    return res.sendFile(
-      path.join(__dirname, '../../tmp', '0_error.txt')
-    );
+    return res.sendFile(path.join(__dirname, '../../tmp', '0_error.txt'));
   }
-
 }
